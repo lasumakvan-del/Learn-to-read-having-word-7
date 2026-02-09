@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Family Flashcard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2575fc;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #6a11cb;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .family-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .family-btn {
+            background: #5B86E5;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .family-btn:hover {
+            background: #2575fc;
+            transform: scale(1.05);
+        }
+
+        .family-btn.active {
+            background: #6a11cb;
+            font-weight: bold;
+        }
+
+        .flashcard {
+            width: 100%;
+            max-width: 450px;
+            height: 320px;
+            background: linear-gradient(135deg, #36D1DC, #5B86E5);
+            border-radius: 20px;
+            padding: 12px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            margin: 0 auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .flashcard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .spiral-holes {
+            position: absolute;
+            top: -12px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 20px,
+                rgba(255, 255, 255, 0.9) 20px,
+                rgba(255, 255, 255, 0.9) 30px
+            );
+            border-radius: 20px 20px 0 0;
+            z-index: 2;
+        }
+
+        .card-header {
+            background: white;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            margin-bottom: 12px;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .header-icon-container {
+            position: relative;
+            width: 55px;
+            height: 45px;
+            perspective: 300px;
+        }
+
+        .header-icon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #FF9F7C;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            transition: transform 0.6s;
+            backface-visibility: hidden;
+        }
+
+        .header-icon.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .pronounce-btn {
+            background: #5B86E5;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 10;
+        }
+
+        .pronounce-btn:hover {
+            background: #2575fc;
+            transform: scale(1.1);
+        }
+
+        .card-main {
+            background: white;
+            height: 200px;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .main-word {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .main-letter-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin-right: 6px;
+            perspective: 600px;
+        }
+
+        .main-letter {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 65px;
+            font-weight: bold;
+            color: #d32f2f;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border-radius: 12px;
+            transition: transform 0.6s;
+            backface-visibility: hidden;
+        }
+
+        .main-letter.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .main-ending {
+            font-size: 65px;
+            font-weight: bold;
+            color: #36D1DC;
+        }
+
+        .word-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .word-image {
+            font-size: 45px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gujarati-meaning {
+            font-size: 20px;
+            font-weight: bold;
+            color: #6a11cb;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 12px;
+            min-width: 110px;
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #36D1DC;
+            font-weight: bold;
+        }
+
+        .page-flip-sound {
+            opacity: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            color: white;
+            pointer-events: none;
+            animation: flipSound 0.6s ease-out;
+        }
+
+        @keyframes flipSound {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-btn {
+            background: #5B86E5;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-btn:hover {
+            background: #2575fc;
+            transform: scale(1.1);
+        }
+
+        .nav-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .progress {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #5B86E5;
+        }
+
+        .school-footer {
+            margin-top: 12px;
+            text-align: center;
+            font-weight: bold;
+            color: #6a11cb;
+            font-size: 1rem;
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: glow 1.5s infinite alternate;
+            box-shadow: 0 0 5px #6a11cb;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px #6a11cb;
+                color: #6a11cb;
+            }
+            100% {
+                box-shadow: 0 0 15px #6a11cb, 0 0 20px #6a11cb;
+                color: #2575fc;
+            }
+        }
+
+        footer {
+            margin-top: 15px;
+            text-align: center;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .tts-error {
+            display: none;
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Mobile Portrait Styles */
+        @media (max-width: 600px) and (orientation: portrait) {
+            body {
+                padding: 10px;
+                justify-content: flex-start;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+                max-width: 95%;
+                margin-top: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .flashcard {
+                height: 280px;
+                max-width: 100%;
+                padding: 10px;
+            }
+            
+            .main-letter, .main-ending {
+                font-size: 45px;
+            }
+            
+            .main-letter-container {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .family-btn {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+            
+            .word-image {
+                font-size: 30px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            .gujarati-meaning {
+                font-size: 16px;
+                min-width: 90px;
+                padding: 5px 10px;
+            }
+            
+            .school-footer {
+                font-size: 0.9rem;
+                max-width: 100%;
+                padding: 6px;
+            }
+            
+            .card-header {
+                height: 45px;
+                padding: 0 12px;
+            }
+            
+            .header-icon-container {
+                width: 45px;
+                height: 35px;
+            }
+            
+            .header-icon {
+                font-size: 25px;
+            }
+            
+            .pronounce-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .card-main {
+                height: 170px;
+                padding: 12px;
+            }
+            
+            .controls {
+                max-width: 100%;
+                margin: 12px 0;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .progress {
+                font-size: 0.9rem;
+                margin-top: 12px;
+            }
+            
+            .click-hint {
+                font-size: 10px;
+                bottom: 5px;
+                right: 8px;
+            }
+        }
+
+        /* Mobile Landscape Styles */
+        @media (max-width: 900px) and (orientation: landscape) {
+            body {
+                padding: 8px;
+                justify-content: center;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+                max-width: 95%;
+                margin: 5px auto;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 10px;
+            }
+            
+            .family-selector {
+                margin-bottom: 10px;
+                gap: 4px;
+            }
+            
+            .family-btn {
+                font-size: 10px;
+                padding: 4px 8px;
+                border-radius: 15px;
+            }
+            
+            .flashcard {
+                height: 220px;
+                max-width: 90%;
+                padding: 8px;
+                margin-bottom: 5px;
+            }
+            
+            .card-header {
+                height: 40px;
+                margin-bottom: 8px;
+                margin-top: 8px;
+            }
+            
+            .header-icon-container {
+                width: 40px;
+                height: 30px;
+            }
+            
+            .header-icon {
+                font-size: 22px;
+            }
+            
+            .pronounce-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            
+            .card-main {
+                height: 140px;
+                padding: 10px;
+            }
+            
+            .main-word {
+                margin-bottom: 8px;
+            }
+            
+            .main-letter-container {
+                width: 55px;
+                height: 55px;
+                margin-right: 4px;
+            }
+            
+            .main-letter, .main-ending {
+                font-size: 40px;
+            }
+            
+            .word-info {
+                gap: 8px;
+                margin-top: 5px;
+            }
+            
+            .word-image {
+                font-size: 25px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .gujarati-meaning {
+                font-size: 14px;
+                min-width: 80px;
+                padding: 4px 8px;
+            }
+            
+            .controls {
+                margin: 10px 0;
+                max-width: 90%;
+            }
+            
+            .nav-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .progress {
+                margin-top: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .school-footer {
+                margin-top: 8px;
+                font-size: 0.85rem;
+                padding: 5px;
+                max-width: 90%;
+            }
+            
+            footer {
+                margin-top: 10px;
+                font-size: 0.75rem;
+            }
+            
+            .click-hint {
+                display: none;
+            }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .container {
+                max-width: 90%;
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .flashcard {
+                height: 380px;
+                max-width: 450px;
+            }
+            
+            .main-letter, .main-ending {
+                font-size: 75px;
+            }
+            
+            .main-letter-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .family-btn {
+                font-size: 15px;
+                padding: 8px 15px;
+            }
+            
+            .word-image {
+                font-size: 55px;
+                width: 70px;
+                height: 70px;
+            }
+            
+            .gujarati-meaning {
+                font-size: 25px;
+                min-width: 130px;
+                padding: 8px 15px;
+            }
+            
+            .school-footer {
+                font-size: 1.2rem;
+                max-width: 450px;
+            }
+            
+            .card-header {
+                height: 65px;
+                padding: 0 20px;
+            }
+            
+            .header-icon-container {
+                width: 65px;
+                height: 55px;
+            }
+            
+            .header-icon {
+                font-size: 38px;
+            }
+            
+            .pronounce-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .card-main {
+                height: 240px;
+                padding: 20px;
+            }
+            
+            .controls {
+                max-width: 450px;
+            }
+            
+            .nav-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 22px;
+            }
+        }
+
+        /* Smart TV and Large Screen Styles */
+        @media (min-width: 1025px) {
+            .container {
+                max-width: 1100px;
+                padding: 35px;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+                margin-bottom: 25px;
+            }
+            
+            .flashcard {
+                height: 500px;
+                max-width: 550px;
+            }
+            
+            .main-letter, .main-ending {
+                font-size: 90px;
+            }
+            
+            .main-letter-container {
+                width: 140px;
+                height: 140px;
+                margin-right: 12px;
+            }
+            
+            .family-btn {
+                font-size: 18px;
+                padding: 10px 20px;
+                margin: 4px;
+            }
+            
+            .word-image {
+                font-size: 70px;
+                width: 90px;
+                height: 90px;
+            }
+            
+            .gujarati-meaning {
+                font-size: 32px;
+                min-width: 160px;
+                padding: 10px 20px;
+            }
+            
+            .school-footer {
+                font-size: 1.5rem;
+                max-width: 550px;
+                padding: 12px;
+                margin-top: 20px;
+            }
+            
+            .card-header {
+                height: 80px;
+                padding: 0 25px;
+                margin-bottom: 18px;
+                margin-top: 18px;
+            }
+            
+            .header-icon-container {
+                width: 75px;
+                height: 65px;
+            }
+            
+            .header-icon {
+                font-size: 45px;
+            }
+            
+            .pronounce-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 22px;
+            }
+            
+            .card-main {
+                height: 320px;
+                padding: 25px;
+            }
+            
+            .controls {
+                max-width: 550px;
+                margin: 25px auto;
+            }
+            
+            .nav-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 25px;
+            }
+            
+            .progress {
+                font-size: 1.3rem;
+                margin-top: 25px;
+            }
+            
+            .click-hint {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+            
+            footer {
+                font-size: 1.1rem;
+                margin-top: 25px;
+            }
+        }
+
+        /* Extra large screens (Smart TVs) */
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1300px;
+            }
+            
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            .flashcard {
+                height: 600px;
+                max-width: 650px;
+            }
+            
+            .main-letter, .main-ending {
+                font-size: 110px;
+            }
+            
+            .main-letter-container {
+                width: 170px;
+                height: 170px;
+            }
+            
+            .family-btn {
+                font-size: 22px;
+                padding: 12px 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Word Family Flashcard</h1>
+            <p class="subtitle">Learn words with Gujarati meanings</p>
+        </header>
+        
+        <div class="family-selector">
+            <button class="family-btn active" data-family="ub">-ub Family</button>
+            <button class="family-btn" data-family="ug">-ug Family</button>
+            <button class="family-btn" data-family="um">-um Family</button>
+            <button class="family-btn" data-family="up">-up Family</button>
+            <button class="family-btn" data-family="us">-us Family</button>
+            <button class="family-btn" data-family="ut">-ut Family</button>
+        </div>
+        
+        <div class="flashcard" id="flashcard">
+            <div class="spiral-holes"></div>
+            <div class="card-header">
+                <div class="header-icon-container">
+                    <div class="header-icon" id="header-icon-current">🦁🐻</div>
+                    <div class="header-icon flipped" id="header-icon-next">🛁</div>
+                </div>
+                <button class="pronounce-btn" id="pronounce-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+            <div class="card-main">
+                <div class="main-word">
+                    <div class="main-letter-container">
+                        <div class="main-letter" id="main-current">C</div>
+                        <div class="main-letter flipped" id="main-next">T</div>
+                    </div>
+                    <div class="main-ending" id="word-ending">ub</div>
+                </div>
+                <div class="word-info">
+                    <div class="word-image" id="word-image">🦁🐻</div>
+                    <div class="gujarati-meaning" id="gujarati-meaning">સિંહ/રીંછનું બચ્ચું</div>
+                </div>
+            </div>
+            <div class="click-hint">Click to flip</div>
+            <div class="page-flip-sound" id="flip-indicator">📖</div>
+        </div>
+        
+        <div class="tts-error" id="tts-error">
+            Text-to-speech is not working. Please check your browser settings or try using Chrome.
+        </div>
+        
+        <div class="controls">
+            <button class="nav-btn" id="prev-btn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="nav-btn" id="next-btn">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="progress">
+            <span id="current-index">1</span>/<span id="total-words">5</span> words
+        </div>
+        
+        <div class="school-footer">
+            Makvana Sanjaysir. Piparadi-2 Primary School
+        </div>
+        
+        <footer>
+            <p>Word Family Flashcard App with Gujarati Meanings &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // Word data organized by word families with Gujarati meanings
+        const wordFamilies = {
+            'ub': [
+                { letter: 'C', icon: '🦁🐻', word: 'Cub', meaning: 'સિંહ/રીંછનું બચ્ચું' },
+                { letter: 'T', icon: '🛁', word: 'Tub', meaning: 'ટબ' },
+                { letter: 'R', icon: '✋', word: 'Rub', meaning: 'ઘસવું' },
+                { letter: 'S', icon: '🚢', word: 'Sub', meaning: 'પાણી નીચે જતી નૌકા (સબમરીન)' },
+                { letter: 'P', icon: '🍺', word: 'Pub', meaning: 'પીણાની હોટલ' }
+            ],
+            'ug': [
+                { letter: 'B', icon: '🐞', word: 'Bug', meaning: 'જીવાત' },
+                { letter: 'H', icon: '🤗', word: 'Hug', meaning: 'ભેટવું' },
+                { letter: 'J', icon: '🍶', word: 'Jug', meaning: 'જગ' },
+                { letter: 'M', icon: '☕', word: 'Mug', meaning: 'કપ' },
+                { letter: 'D', icon: '⛏️', word: 'Dug', meaning: 'ખોદ્યું' },
+                { letter: 'R', icon: '🏡', word: 'Rug', meaning: 'ગાલીચો' }
+            ],
+            'um': [
+                { letter: 'S', icon: '➕', word: 'Sum', meaning: 'કુલ / ઉમેરો' },
+                { letter: 'G', icon: '🍬', word: 'Gum', meaning: 'ચ્યુઇંગ ગમ' },
+                { letter: 'H', icon: '🎶', word: 'Hum', meaning: 'ગુંજન કરવું' },
+                { letter: 'M', icon: '👩', word: 'Mum', meaning: 'મમ્મી / મા' },
+                { letter: 'B', icon: '🚶', word: 'Bum', meaning: 'બેઘર માણસ' }
+            ],
+            'up': [
+                { letter: 'U', icon: '⬆️', word: 'Up', meaning: 'ઉપર' },
+                { letter: 'C', icon: '🏆', word: 'Cup', meaning: 'કપ' },
+                { letter: 'S', icon: '🍲', word: 'Sup', meaning: 'હળવું ભોજન / સૂપ' },
+                { letter: 'P', icon: '🐶', word: 'Pup', meaning: 'કૂતરાનું બચ્ચું' }
+            ],
+            'us': [
+                { letter: 'B', icon: '🚌', word: 'Bus', meaning: 'બસ' },
+                { letter: 'U', icon: '👥', word: 'Us', meaning: 'અમે / અમને' }
+            ],
+            'ut': [
+                { letter: 'C', icon: '✂️', word: 'Cut', meaning: 'કાપવું' },
+                { letter: 'H', icon: '🛖', word: 'Hut', meaning: 'ઝૂંપડું' },
+                { letter: 'N', icon: '🌰', word: 'Nut', meaning: 'સૂકા મેવો' },
+                { letter: 'P', icon: '🤲', word: 'Put', meaning: 'મૂકવું' },
+                { letter: 'G', icon: '🧠', word: 'Gut', meaning: 'આંતરડી' },
+                { letter: 'B', icon: '⚖️', word: 'But', meaning: 'પરંતુ' }
+            ]
+        };
+        
+        let currentFamily = 'ub';
+        let currentIndex = 0;
+        let isFlipping = false;
+
+        // Initialize the application when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners for family buttons
+            document.querySelectorAll('.family-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const family = this.getAttribute('data-family');
+                    changeWordFamily(family);
+                    
+                    // Update active button styling
+                    document.querySelectorAll('.family-btn').forEach(function(btn) {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+            
+            // Set up click event for the flashcard
+            const flashcard = document.getElementById('flashcard');
+            flashcard.addEventListener('click', function(e) {
+                // Only flip if the click is not on the pronounce button
+                if (!e.target.closest('#pronounce-btn')) {
+                    flipLetter();
+                }
+            });
+            
+            // Set up events for navigation buttons
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pronounceBtn = document.getElementById('pronounce-btn');
+            
+            prevBtn.addEventListener('click', function() {
+                navigate(-1);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                navigate(1);
+            });
+            
+            // Only speak when pronounce button is clicked, don't flip
+            pronounceBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event from bubbling to the flashcard
+                speakWord();
+            });
+            
+            // Initialize the first card
+            updateCardContent();
+            updateProgress();
+            updateNavigationButtons();
+        });
+        
+        function changeWordFamily(family) {
+            if (family === currentFamily) return;
+            
+            currentFamily = family;
+            currentIndex = 0;
+            
+            // Update the word ending display
+            document.getElementById('word-ending').textContent = currentFamily;
+            
+            // Update the card content
+            updateCardContent();
+            updateProgress();
+            updateNavigationButtons();
+        }
+        
+        function updateCardContent() {
+            const words = wordFamilies[currentFamily];
+            const currentWord = words[currentIndex];
+            const nextIndex = (currentIndex + 1) % words.length;
+            const nextWord = words[nextIndex];
+            
+            // Update current elements
+            document.getElementById('header-icon-current').textContent = currentWord.icon;
+            document.getElementById('main-current').textContent = currentWord.letter;
+            document.getElementById('word-image').textContent = currentWord.icon;
+            document.getElementById('gujarati-meaning').textContent = currentWord.meaning;
+            
+            // Update next elements (for flip animation)
+            document.getElementById('header-icon-next').textContent = nextWord.icon;
+            document.getElementById('main-next').textContent = nextWord.letter;
+            
+            // Reset flip state
+            document.getElementById('header-icon-current').classList.remove('flipped');
+            document.getElementById('header-icon-next').classList.add('flipped');
+            document.getElementById('main-current').classList.remove('flipped');
+            document.getElementById('main-next').classList.add('flipped');
+            
+            // Update word ending
+            document.getElementById('word-ending').textContent = currentFamily;
+            
+            // Update total words count
+            document.getElementById('total-words').textContent = words.length;
+        }
+        
+        function flipLetter() {
+            if (isFlipping) return;
+            
+            isFlipping = true;
+            
+            // Show flip animation
+            const flipIndicator = document.getElementById('flip-indicator');
+            flipIndicator.style.animation = 'none';
+            void flipIndicator.offsetWidth; // Trigger reflow
+            flipIndicator.style.animation = 'flipSound 0.6s ease-out';
+            
+            // Flip the letter and icon
+            document.getElementById('header-icon-current').classList.add('flipped');
+            document.getElementById('header-icon-next').classList.remove('flipped');
+            document.getElementById('main-current').classList.add('flipped');
+            document.getElementById('main-next').classList.remove('flipped');
+            
+            // After the flip animation, move to the next word
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % wordFamilies[currentFamily].length;
+                updateCardContent();
+                updateProgress();
+                updateNavigationButtons();
+                isFlipping = false;
+            }, 600);
+        }
+        
+        function navigate(direction) {
+            const words = wordFamilies[currentFamily];
+            currentIndex = (currentIndex + direction + words.length) % words.length;
+            updateCardContent();
+            updateProgress();
+            updateNavigationButtons();
+        }
+        
+        function speakWord() {
+            const words = wordFamilies[currentFamily];
+            const currentWord = words[currentIndex];
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(currentWord.word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                
+                utterance.onerror = function() {
+                    document.getElementById('tts-error').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('tts-error').style.display = 'none';
+                    }, 3000);
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                document.getElementById('tts-error').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('tts-error').style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        function updateProgress() {
+            document.getElementById('current-index').textContent = currentIndex + 1;
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const words = wordFamilies[currentFamily];
+            
+            // We don't need to disable buttons for circular navigation
+            // But if you prefer to disable them at ends, you can use:
+            // prevBtn.disabled = currentIndex === 0;
+            // nextBtn.disabled = currentIndex === words.length - 1;
+        }
+    </script>
+</body>
+</html>
